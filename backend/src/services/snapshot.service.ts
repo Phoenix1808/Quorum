@@ -69,8 +69,7 @@ export async function fetchProposals(params: {
   const where: { space_in: string[]; state?: string } = { space_in: spaces };
   if (state) where.state = state;
 
-  console.log("sending to snapshot:", JSON.stringify({where,first,skip},null,2))
-  // query bheji response ka shape batane ke liye 
+  // query bheji response ka shape batane ke liye
   const data = await snapClient.request<{ proposals: RawProposal[] }>(
     propQuery,
     { where, first, skip }
