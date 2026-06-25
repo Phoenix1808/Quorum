@@ -1,5 +1,5 @@
 import {redis} from "../clients/redis.client"
-import { fetchProposals } from "./snapshot.service"
+import { fetchProposalById, fetchProposals } from "./snapshot.service"
 
 const cache_ttl_sec = 60;
 
@@ -23,4 +23,23 @@ export async function getPropsCached(params:{
 
     await redis.set(cacheaKey,JSON.stringify(proposals),"EX",cache_ttl_sec);
     return proposals;
+}
+
+//proposal fetching id
+
+export async function getPropsCachedID(id:string){
+    const cacheKey = `proposal:${id}`;
+    const cached = await redis.get(cacheKey)
+    if(cached){
+        console.log("cache hit: ", cacheKey)
+        return JSON.parse(cached);
+    } else{
+     console.log("Cache Miss:", cacheKey);
+    }
+    
+    const proposal = await fetchProposalById(id);
+    if(proposal){
+        await redis.set(cacheKey,JSON.stringify(proposal),"EX",60);
+    }
+    return proposal;
 }

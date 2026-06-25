@@ -94,3 +94,33 @@ export async function fetchProposals(params: {
     },
   }));
 }
+
+
+//single proposal fetch 
+
+const PropQuery = gql`
+ query Proposal($id:String!){
+ proposal(id: $id){
+ id title body
+ choices start end
+ state scores scores_total
+ quorum author created
+ snapshot space{id name}}}`;
+
+ export async function fetchProposalById(id:string){
+    const data = await snapClient.request<{proposal:any | null}>(
+        PropQuery,{id}
+    );
+    if(!data.proposal)
+        return null;
+
+    const p = data.proposal;
+    return{
+        id: p.id, title: p.title, body: p.body, choices: p.choices, scores: p.scores, scoresTotal :p.scores_total, 
+        quorum:p.quorum, author:p.author, created:p.created, 
+        // blockchain block number (voting power isi block pe)
+        snapshot: p.snapshot,        
+         start: p.start,end: p.end, state: p.state,
+         dao: {id:p.space.id, name: p.space.name},
+    };
+ }
