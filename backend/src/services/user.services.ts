@@ -3,6 +3,7 @@ import {redis} from "../clients/redis.client";
 export async function register(address:string, fcmToken:string){
     const key = `user:${address.toLowerCase()}`;
     await redis.hset(key,{fcmToken}); //hash mai field set
+    await redis.sadd("users", address.toLowerCase()); //global users index (cron ke liye)
     return {address:address.toLowerCase(),fcmToken}
 }
 
@@ -23,3 +24,7 @@ export async function list(address:string){
     const key = `user:${address.toLowerCase()}:follows`;
     return redis.smembers(key); //smembers => all items of set
 }
+export async function getAllUsers(){
+    return redis.smembers("users");
+}
+//list of registered users
