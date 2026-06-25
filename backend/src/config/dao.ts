@@ -1,6 +1,6 @@
 export const DAOs = [
     {id:"ens",name:"ENS",space:"ens.eth"},
-    {id:"aave",name:"Aave",space:"aave.eth"},
+    {id:"aave",name:"Aave",space:"aavedao.eth"},
     {id:"uniswap",name:"Uniswap",space:"uniswapgovernance.eth"}
 ];
 

@@ -24,19 +24,38 @@ const propQuery = gql`
 `;
 
 
+
 interface RawProposal {
-  id: string;
-  title: string;
-  body: string;
-  choices: string[];
-  start: number;       
-  end: number;         
-  state: string;      
-  scores: number[];    // har choice ke votes [for, against, abstain]
-  scores_total: number;
-  space: { id: string; name: string };
+    id: string;
+    title: string;
+    body: string;
+    choices: string[];
+    start: number;       
+    end: number;         
+    state: string;      
+    scores: number[];    // har choice ke votes [for, against, abstain]
+    scores_total: number;
+    space: { id: string; name: string };
 }
 
+const SpaceQuery = gql`
+ query Spaces($ids: [String!]){
+ spaces(where: {id_in: $ids}){
+ id name about avatar followersCount proposalsCount network
+ }
+ }
+ `;
+
+ interface RawSpace{
+    id: string, name:string, avatar:string, about:string, followersCount: number, proposalsCount: number, network:string
+ }
+
+ export async function fetchSpaces(ids:string[]) {
+    const data = await snapClient.request<{spaces:RawSpace[]}>(
+     SpaceQuery, {ids}
+    );
+    return data.spaces;
+ }
 
 export async function fetchProposals(params: {
   spaces: string[];
