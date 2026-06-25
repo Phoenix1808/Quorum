@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",          // kaunse JS version mein compile (modern)
+    "module": "commonjs",        // Node.js ka module system
+    "rootDir": "./src",          // tera source code kahan hai
+    "outDir": "./dist",          // compiled JS kahan jaaye
+    "strict": true,              // strict type checking (errors jaldi pakdo)
+    "esModuleInterop": true,     // import/export cleanly kaam kare
+    "skipLibCheck": true,        // node_modules ke types skip (fast compile)
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": ["src/**/*"],       // sirf src/ folder compile karo
+  "exclude": ["node_modules"]
+}
