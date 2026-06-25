@@ -1,6 +1,7 @@
 import { Request,Response } from "express";
 import { fetchProposals } from "../services/snapshot.service";
 import { default_space } from "../config/dao";
+import { getPropsCached } from "../services/proposal.services";
 
 
 export async function getProposals(req:Request,res:Response){
@@ -15,7 +16,7 @@ export async function getProposals(req:Request,res:Response){
         const first = 20;
         const skip = (page-1)*first;
 
-        const proposals = await fetchProposals({spaces,state,first,skip});
+        const proposals = await getPropsCached({spaces,state,first,skip});
         res.json({page,count: proposals.length, proposals});
     } catch(err){
         console.error("getProposals error: ", err)
