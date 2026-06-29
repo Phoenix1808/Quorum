@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.quorum.data.remote.ApiClient
+import com.example.quorum.ui.feed.FeedScreen
 import com.example.quorum.ui.theme.QuorumTheme
 
 class MainActivity : ComponentActivity() {
@@ -23,20 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             QuorumTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LaunchedEffect(Unit) {
-                        try {
-                            val res = ApiClient.api.getProposals(spaces = "ens.eth", state = "active")
-                            Log.d("QUORUM", "Got ${res.count} proposals")
-                            res.proposals.forEach { Log.d("QUORUM", "- ${it.title}") }
-                        } catch (e: Exception) {
-                            Log.e("QUORUM", "Error", e)
-                        }
-                    }
-
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                    FeedScreen(modifier = Modifier.padding(innerPadding))
                 }
             }
         }
