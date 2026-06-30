@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 
@@ -52,7 +53,7 @@ fun DiscoveryScreen(
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
     Box(modifier = modifier.fillMaxSize()){
-        when (val s = state){
+        when (val s = state) {
             is DiscoveryUiState.Loading ->
                 CircularProgressIndicator(Modifier.align(Alignment.Center))
 
@@ -60,20 +61,25 @@ fun DiscoveryScreen(
                 Text(s.message, Modifier.align(Alignment.Center))
 
             is DiscoveryUiState.Success ->
-                LazyColumn(Modifier.fillMaxSize()){
-                    items(s.daos){dao->DaoCard(dao)}
+                LazyColumn(Modifier.fillMaxSize()) {
+                    items(s.daos) { dao ->
+                        DaoCard(
+                            dao = dao,
+                            isFollowed = dao.id in s.followed,
+                            onToggleFollow = { viewModel.toggleFollow(dao.id) })
+                    }
                 }
         }
     }
 }
 
 @Composable
-private fun DaoCard(dao: DaoItem){
+private fun DaoCard(dao: DaoItem, isFollowed: Boolean, onToggleFollow:() -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
-    ){
+    ) {
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
@@ -84,12 +90,19 @@ private fun DaoCard(dao: DaoItem){
                 modifier = Modifier.size(48.dp).clip(CircleShape)
             )
             Spacer(Modifier.width(12.dp))
-            Column {
-                Text(dao.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    dao.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
                 Text(
                     "${dao.followersCount} followers - ${dao.proposalsCount} proposals",
                     style = MaterialTheme.typography.labelSmall
                 )
+            }
+            Button(onClick = onToggleFollow) {
+                Text(if (isFollowed) "Following" else "Follow")
             }
         }
     }
