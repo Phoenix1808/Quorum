@@ -1,5 +1,6 @@
 package com.example.quorum.data.repository
 
+import com.example.quorum.data.model.DaoItem
 import com.example.quorum.data.model.Proposal
 import com.example.quorum.data.remote.ApiClient
 
@@ -15,5 +16,9 @@ class QuorumRepository {
 
     suspend fun getProposal(id: String): Proposal {
         return ApiClient.api.getProposal(id).proposal
+    }
+
+    suspend fun getDaos(): List<DaoItem>{
+        return ApiClient.api.getDaos().daos
     }
 }
