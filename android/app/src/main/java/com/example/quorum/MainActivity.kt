@@ -6,10 +6,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -45,7 +41,7 @@ fun QuorumApp() {
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { QuorumBottomBar(navController) }   // ← bottom bar slot
+        bottomBar = { QuorumBottomBar(navController) }
     ) { innerPadding ->
         NavHost(
             navController = navController,
@@ -70,13 +66,12 @@ fun QuorumApp() {
 
 @Composable
 fun QuorumBottomBar(navController: NavController) {
-    // har tab = route, label, icon
+    // route, label, icon (emoji — material-icons dependency se bacha)
     val items = listOf(
-        Triple("feed", "Feed", Icons.Default.Home),
-        Triple("discovery", "Discover", Icons.Default.Search)
+        Triple("feed", "Feed", "🏠"),
+        Triple("discovery", "Discover", "🔍")
     )
 
-    // abhi kaunsi screen pe hain (taaki sahi tab highlight ho)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -86,13 +81,12 @@ fun QuorumBottomBar(navController: NavController) {
                 selected = currentRoute == route,
                 onClick = {
                     navController.navigate(route) {
-                        // tab switch pe back-stack clean rahe
                         popUpTo(navController.graph.startDestinationId) { saveState = true }
                         launchSingleTop = true
                         restoreState = true
                     }
                 },
-                icon = { Icon(icon, contentDescription = label) },
+                icon = { Text(icon) },
                 label = { Text(label) }
             )
         }

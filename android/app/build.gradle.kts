@@ -68,6 +68,11 @@ dependencies {
     // Image loading (DAO avatars)
     implementation("io.coil-kt:coil-compose:2.7.0")
 
+    implementation(platform("com.reown:android-bom:1.6.13"))
+    implementation("com.reown:android-core")
+    implementation("com.reown:appkit")
+
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
