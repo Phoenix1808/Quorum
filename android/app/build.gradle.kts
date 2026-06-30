@@ -72,6 +72,9 @@ dependencies {
     implementation("com.reown:android-core")
     implementation("com.reown:appkit")
 
+    // Material 2 — Reown AppKit ka modal (ModalBottomSheetLayout) isi pe chalta
+    implementation("androidx.compose.material:material")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
