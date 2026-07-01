@@ -39,6 +39,25 @@ class QuorumApplication : Application() {
             onError = { error -> /* init fail */ }
         )
 
+        // Delegate — signature response yahan aata hai. Baaki methods khaali (crash na ho)
+        AppKit.setDelegate(object : AppKit.ModalDelegate {
+            override fun onSessionApproved(approvedSession: Modal.Model.ApprovedSession) {}
+            override fun onSessionRejected(rejectedSession: Modal.Model.RejectedSession) {}
+            override fun onSessionUpdate(updatedSession: Modal.Model.UpdatedSession) {}
+            override fun onSessionEvent(sessionEvent: Modal.Model.SessionEvent) {}
+            override fun onSessionExtend(session: Modal.Model.Session) {}
+            override fun onSessionDelete(deletedSession: Modal.Model.DeletedSession) {}
+
+            override fun onSessionRequestResponse(response: Modal.Model.SessionRequestResponse) {
+                android.util.Log.d("QUORUM", "Signature Response -> $response")
+            }
+
+            override fun onProposalExpired(proposal: Modal.Model.ExpiredProposal) {}
+            override fun onRequestExpired(request: Modal.Model.ExpiredRequest) {}
+            override fun onConnectionStateChange(state: Modal.Model.ConnectionState) {}
+            override fun onError(error: Modal.Model.Error) {}
+        })
+
         //Ethereum Mainnet Chain
         AppKit.setChains(AppKitChainsPresets.ethChains.values.toList())
     }

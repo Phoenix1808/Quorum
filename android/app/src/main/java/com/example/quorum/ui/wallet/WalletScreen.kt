@@ -17,8 +17,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import com.reown.appkit.client.AppKit
+import com.reown.appkit.client.models.request.Request
 
-// TODO: WalletScreen — connect button + connected state
 
 @Composable
 fun WalletScreen(
@@ -43,6 +43,24 @@ fun WalletScreen(
             val shortAdd = if (address.length>10) "${address.take(6)}..${address.takeLast(4)}" //like take 6 chars from beginning and 4 from ending
             else address
             Text(shortAdd,style=MaterialTheme.typography.bodyMedium)
+
+            Spacer(Modifier.height(16.dp))
+
+            Button(onClick = {
+                val addr = AppKit.getAccount()?.address ?: return@Button
+                val msg = "0x48656c6c6f2051756f72756d"
+                val req = Request(
+                    method = "personal_sign",
+                    params = "[\"$msg\", \"$addr\"]"
+                )
+                AppKit.request(
+                    request = req,
+                    onSuccess = { _ -> android.util.Log.d("Quorum", "request sent !!") },
+                    onError = { error -> android.util.Log.e("Quorum", "Request Error", error) }
+                )
+            }) {
+                Text("Sign Text Message")
+            }
 
             Spacer(Modifier.height(16.dp))
 
