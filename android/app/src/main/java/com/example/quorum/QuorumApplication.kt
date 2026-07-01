@@ -5,7 +5,6 @@ import com.reown.android.Core
 import com.reown.android.CoreClient
 import com.reown.android.relay.ConnectionType
 import com.reown.appkit.client.AppKit
-import android.graphics.ColorSpace.Model
 import com.reown.appkit.client.Modal
 import com.reown.appkit.presets.AppKitChainsPresets
 
@@ -13,7 +12,8 @@ class QuorumApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        val projId = "bc4b0845e44c1cbea9ea4ad58d0b547b"
+        // Project ID local.properties se aata hai (BuildConfig ke through) — hardcoded nahi
+        val projId = BuildConfig.WALLET_PROJECT_ID
 
         val appMetaData = Core.Model.AppMetaData(
             name = "Quorum",

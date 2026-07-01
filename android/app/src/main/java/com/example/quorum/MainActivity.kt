@@ -13,7 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +46,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class,ExperimentalMaterial3Api::class)
 @Composable
 fun QuorumApp() {
     val navController = rememberNavController()
@@ -67,6 +69,9 @@ fun QuorumApp() {
     ) {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
+            topBar = {
+                TopAppBar(title = { Text("Quorum") })
+            },
             bottomBar = { QuorumBottomBar(navController) }
         ) { innerPadding ->
             NavHost(

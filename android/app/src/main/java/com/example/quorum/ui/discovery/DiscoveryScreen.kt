@@ -37,13 +37,6 @@ import coil.compose.AsyncImage
 // TODO: DiscoveryScreen — DAO cards + follow button
 
 //ipfs: //converts url to http gateway
-fun ipfstoHttp(url: String?): String?{
-    if (url == null)
-        return null
-    return if (url.startsWith("ipfs://"))
-        "https://ipfs.io/ipfs/" + url.removePrefix("ipfs://")
-    else url
-}
 
 @Composable
 fun DiscoveryScreen(

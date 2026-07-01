@@ -1,8 +1,19 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
 }
+
+// local.properties se secrets load (gitignored — public repo mein nahi jaate)
+val localProps = Properties()
+val localPropsFile = rootProject.file("local.properties")
+if (localPropsFile.exists()) {
+    localProps.load(FileInputStream(localPropsFile))
+}
+val walletProjectId: String = localProps.getProperty("WALLET_PROJECT_ID") ?: ""
 
 android {
     namespace = "com.example.quorum"
@@ -16,6 +27,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // Project ID ko BuildConfig.WALLET_PROJECT_ID se code mein use karo
+        buildConfigField("String", "WALLET_PROJECT_ID", "\"$walletProjectId\"")
     }
 
     buildTypes {
@@ -36,6 +50,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -74,6 +89,7 @@ dependencies {
 
     // Material 2 — Reown AppKit ka modal (ModalBottomSheetLayout) isi pe chalta
     implementation("androidx.compose.material:material")
+    implementation(libs.androidx.material3)
 
 
     testImplementation(libs.junit)

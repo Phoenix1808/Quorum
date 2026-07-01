@@ -68,14 +68,19 @@ fun FeedScreen(
                     CircularProgressIndicator(Modifier.align(Alignment.Center))
 
                 is FeedUiState.Success ->
-                    LazyColumn(Modifier.fillMaxSize()) {
-                        items(s.proposals) { proposal ->
-                            ProposalCard(
-                                proposal = proposal,
-                                onClick = { onProposalClick(proposal.id) }
-                            )
+                    if(s.proposals.isEmpty()){
+                        Text("No Proposal Currently", modifier=Modifier.align(Alignment.Center))
+                    } else {
+                        LazyColumn(Modifier.fillMaxSize()) {
+                            items(s.proposals) { proposal ->
+                                ProposalCard(
+                                    proposal = proposal,
+                                    onClick = { onProposalClick(proposal.id) }
+                                )
+                            }
                         }
                     }
+
 
                 is FeedUiState.Error ->
                     Column(
