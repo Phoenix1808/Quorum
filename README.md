@@ -1,144 +1,126 @@
-# Quorum — Mobile-first DAO Governance
+# 🗳️ Quorum — Mobile-first DAO Governance
 
-> A native Android app that brings **DAO governance to mobile** — browse proposals, follow DAOs, and vote **gaslessly** on Snapshot, all in one place. Supports **Snapshot (off-chain)** and (planned) **Tally (on-chain)**.
+> Browse DAO proposals, follow your favourite DAOs, and connect your wallet — all from a native Android app. An open-source attempt to bring **DAO governance to mobile**.
 
-There's no good native Android app for DAO governance today. Quorum is an open-source attempt to fix that — starting with the people who actually vote: members of **Uniswap, Aave, and ENS**.
+Quorum aggregates governance proposals from real DAOs (**Uniswap, Aave, ENS**) into one clean Android app, powered by [Snapshot](https://snapshot.box). Today there's no good native Android app for DAO governance — Quorum is here to fix that.
 
----
-
-## Why Quorum?
-
-- **Snapshot off-chain + (planned) Tally on-chain** — both in one place
-- **Gasless voting** — vote on Snapshot by signing a message, no gas fee
-- **Mobile-first** — track proposals, deadlines, and results from your phone
-- **Open source** — built to learn from and contribute to
-
-> **Snapshot vs Tally (quick mental model):** Snapshot = free, off-chain "opinion poll" (just sign). Tally = on-chain, binding vote that actually moves treasury funds (costs gas). Most big DAOs use both — Snapshot to gauge sentiment, Tally for the binding decision. See [docs/PLAN.md](docs/PLAN.md) for the full concept notes.
+<!-- Add screenshots to docs/screenshots/ and update these -->
+<p align="center">
+  <img src="docs/screenshots/feed.png" width="240" alt="Proposal Feed" />
+  <img src="docs/screenshots/discovery.png" width="240" alt="DAO Discovery" />
+  <img src="docs/screenshots/wallet.png" width="240" alt="Wallet Connect" />
+</p>
 
 ---
 
-## Tech Stack
+## 🤔 New to DAOs? Start here
+
+A **DAO** (Decentralized Autonomous Organization) is an internet community with no single boss — members make decisions by **voting**. Big protocols like Uniswap, Aave, and ENS are run this way.
+
+**Snapshot** is where most of this voting happens — it's free and "gasless" (you just sign a message with your wallet, no transaction fee).
+
+Quorum brings all of this to your phone: see what's being voted on, follow the DAOs you care about, and connect your wallet.
+
+👉 **Full beginner-friendly explainer:** [docs/CONCEPTS.md](docs/CONCEPTS.md)
+
+---
+
+## ✨ Features
+
+| Feature | Status |
+|---------|--------|
+| 📋 **Proposal Feed** — browse proposals from Uniswap/Aave/ENS, filter by All/Active/Closed | ✅ |
+| 📄 **Proposal Detail** — full description, live results per choice, deadline | ✅ |
+| 🔍 **DAO Discovery** — browse DAOs (followers, proposal counts) + follow/unfollow | ✅ |
+| 👛 **Wallet Connect** — connect any wallet via WalletConnect/Reown, see your address | ✅ |
+| 🔔 **Deadline notifications** — backend cron detects 24h/1h windows *(delivery wiring in v1.1)* | 🚧 |
+| 🗳️ **Gasless voting** — sign & submit votes to Snapshot (EIP-712) | 🔮 v1.1 |
+| 📊 **Vote history** — your past votes + stats | 🔮 v1.1 |
+
+---
+
+## 🧱 Tech Stack
 
 | Layer | Stack |
 |-------|-------|
-| **Backend** | Node.js · TypeScript · Express · Redis (Upstash) · node-cron |
+| **Android** | Kotlin · Jetpack Compose · MVVM · Retrofit · Coil · Navigation · Reown AppKit (WalletConnect) |
+| **Backend** | Node.js · TypeScript · Express · Redis (Upstash) · node-cron · deployed on Render |
 | **Web3 data** | Snapshot GraphQL API |
-| **Notifications** | FCM (Firebase Cloud Messaging) — *planned, wired with Android* |
-| **Android** (planned) | Kotlin · Jetpack Compose · WalletConnect v2 · Retrofit · Room |
+
+The backend is a **thin proxy**: it fetches DAO data from Snapshot, caches it in Redis, and stores app data (users, follows). The Android app talks only to the backend (+ the wallet for connecting).
+
+👉 **How it all fits together:** [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 
 ---
 
-## Architecture
-
-```
-Android App ──► Backend (thin proxy + cache) ──► Snapshot GraphQL
-                     │
-                     ├── Redis: caching + users + follows
-                     └── Cron: deadline checks ──► FCM (push)
-```
-
-The backend is a **thin proxy**: it fetches DAO data from Snapshot, caches it in Redis, and stores its own data (users, follows). Voting itself happens **client-side** (the app signs and submits directly to Snapshot — the backend never touches private keys).
-
----
-
-## Backend — Setup
-
-```bash
-cd backend
-npm install
-```
-
-Create a `backend/.env` file (see `.env.example`):
-
-```
-PORT=3000
-REDIS_URL=rediss://<your-upstash-redis-url>
-```
-
-Run in dev (auto-reload):
-
-```bash
-npm run dev
-```
-
-Server starts on `http://localhost:3000`. Check `GET /health`.
-
----
-
-## API Reference
-
-### Proposals
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/proposals?spaces=ens.eth&state=active&page=1` | List proposals (filter by space + state, paginated) |
-| `GET` | `/api/proposals/:id` | Full detail of a single proposal |
-
-### DAOs
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/daos` | Supported DAOs + live metadata (followers, avatar, proposal count) |
-
-### Users & Follows
-| Method | Endpoint | Body | Description |
-|--------|----------|------|-------------|
-| `POST` | `/api/users` | `{ address, fcmToken }` | Register a user (wallet address) + FCM token |
-| `POST` | `/api/users/:address/follow` | `{ daoId }` | Follow a DAO |
-| `DELETE` | `/api/users/:address/follow/:daoId` | — | Unfollow a DAO |
-| `GET` | `/api/users/:address/follows` | — | List a user's followed DAOs |
-
-> Supported DAOs (`daoId`): `ens`, `aave`, `uniswap` — see [backend/src/config/dao.ts](backend/src/config/dao.ts).
-
----
-
-## Project Status & Roadmap
-
-### ✅ Backend v1 — Done
-- [x] **Proposal Feed** — fetch from Snapshot, filter by space/state, pagination, Redis caching
-- [x] **Proposal Detail** — single proposal with full body, cached
-- [x] **DAO Discovery** — curated DAO list enriched with live Snapshot metadata
-- [x] **Users & Follows** — registration + follow/unfollow stored in Redis (hash + set)
-- [x] **Deadline Reminders** — `node-cron` job scans followed DAOs' active proposals, detects 24h/1h windows, dedupes — currently logs `WOULD SEND`
-
-### 🚧 In Progress / Deferred
-- [ ] **FCM push delivery** — actual notification send (wired alongside the Android app, since it needs a device to receive)
-
-### 📱 Next — Android app (v1)
-- [ ] Proposal Feed UI (Jetpack Compose) + filter chips + pagination
-- [ ] Proposal Detail screen
-- [ ] WalletConnect v2 — connect wallet, **gasless Snapshot voting** (EIP-712 signing)
-- [ ] DAO Discovery + follow/unfollow
-- [ ] Push notifications (FCM) + local vote history (Room)
-
-### 🔮 v2 — Later
-- [ ] **Tally on-chain voting** (gas estimation, transaction tracking)
-- [ ] Charts / analytics, quorum tracker
-- [ ] DAO list caching, more DAOs, multi-chain
-
----
-
-## Repo Structure
+## 📁 Repo Structure
 
 ```
 Quorum/
-├── backend/          # Node.js + TS API (this is built)
-│   └── src/
-│       ├── routes/         # URL definitions
-│       ├── controllers/    # request/response handlers
-│       ├── services/       # business logic (snapshot, proposals, users, notifications)
-│       ├── clients/        # external connections (Snapshot, Redis)
-│       ├── jobs/           # cron jobs (deadline reminders)
-│       └── config/         # DAO list, constants
+├── android/          # Native Android app (Kotlin + Compose)
+├── backend/          # Node.js + TypeScript API (deployed on Render)
 ├── docs/
-│   └── PLAN.md       # concept notes + detailed plan
+│   ├── CONCEPTS.md       # DAO / Snapshot / gasless voting — explained from scratch
+│   ├── ARCHITECTURE.md   # How the app + backend + Snapshot fit together
+│   └── PLAN.md           # Original project plan & notes
+├── CONTRIBUTING.md
 └── README.md
 ```
 
 ---
 
-## Contributing
+## 🚀 Getting Started
 
-This is a learning-focused open-source project — contributions and questions welcome. Good first issues will be labelled once the Android app lands.
+### Backend
+```bash
+cd backend
+npm install
+# create .env with:  PORT=3000  and  REDIS_URL=rediss://<your-upstash-url>
+npm run dev
+```
+Server runs on `http://localhost:3000` (health check: `GET /health`).
+Live instance: `https://quorum-t5uv.onrender.com`
 
-## License
+### Android
+```bash
+cd android
+```
+1. Open in Android Studio.
+2. Add your [Reown](https://dashboard.reown.com) Project ID to `android/local.properties`:
+   ```
+   WALLET_PROJECT_ID=your_project_id_here
+   ```
+3. Set the backend URL in `data/remote/ApiClient.kt` (defaults to the live instance).
+4. Run on a device/emulator.
 
-MIT (to be added)
+---
+
+## 🔌 API Reference
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/proposals?spaces=ens.eth&state=active&page=1` | List proposals (filter + paginate) |
+| `GET` | `/api/proposals/:id` | Single proposal detail |
+| `GET` | `/api/daos` | Supported DAOs + live metadata |
+| `POST` | `/api/users` | Register user + FCM token |
+| `POST` | `/api/users/:address/follow` | Follow a DAO |
+| `DELETE` | `/api/users/:address/follow/:daoId` | Unfollow |
+| `GET` | `/api/users/:address/follows` | List follows |
+
+---
+
+## 🗺️ Roadmap
+
+- **v1 (current):** Browse + filter proposals, DAO discovery + follow, wallet connect
+- **v1.1:** Gasless voting (EIP-712 → Snapshot), push notification delivery (FCM), vote history
+- **v2:** On-chain voting (Tally), analytics/charts, more DAOs, multi-chain
+
+---
+
+## 🤝 Contributing
+
+Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md). This is a learning-focused, open-source project — issues, ideas, and PRs are all appreciated.
+
+## 📄 License
+
+MIT — see [LICENSE](LICENSE).
