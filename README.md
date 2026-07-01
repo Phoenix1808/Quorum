@@ -4,12 +4,15 @@
 
 Quorum aggregates governance proposals from real DAOs (**Uniswap, Aave, ENS**) into one clean Android app, powered by [Snapshot](https://snapshot.box). Today there's no good native Android app for DAO governance — Quorum is here to fix that.
 
-<!-- Add screenshots to docs/screenshots/ and update these -->
+> 📸 _Screenshots coming soon._
+
+<!-- Screenshots: add images to docs/screenshots/ then uncomment
 <p align="center">
   <img src="docs/screenshots/feed.png" width="240" alt="Proposal Feed" />
   <img src="docs/screenshots/discovery.png" width="240" alt="DAO Discovery" />
   <img src="docs/screenshots/wallet.png" width="240" alt="Wallet Connect" />
 </p>
+-->
 
 ---
 
