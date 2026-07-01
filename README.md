@@ -1,6 +1,17 @@
-# 🗳️ Quorum — Mobile-first DAO Governance
+<p align="center">
+  <img src="docs/logo.svg" width="120" alt="Quorum logo" />
+</p>
 
-> Browse DAO proposals, follow your favourite DAOs, and connect your wallet — all from a native Android app. An open-source attempt to bring **DAO governance to mobile**.
+<h1 align="center">Quorum</h1>
+
+<p align="center"><b>Mobile-first DAO Governance</b></p>
+
+<p align="center">
+  Browse DAO proposals, follow your favourite DAOs, and connect your wallet —<br/>
+  all from a native Android app. An open-source attempt to bring <b>DAO governance to mobile</b>.
+</p>
+
+---
 
 Quorum aggregates governance proposals from real DAOs (**Uniswap, Aave, ENS**) into one clean Android app, powered by [Snapshot](https://snapshot.box). Today there's no good native Android app for DAO governance — Quorum is here to fix that.
 
