@@ -91,6 +91,10 @@ dependencies {
     implementation("androidx.compose.material:material")
     implementation(libs.androidx.material3)
 
+    // web3j crypto — EIP-55 address checksum (Keys.toChecksumAddress)
+    // 4.8.7 = Android-friendly (newer versions use Java records → desugaring error)
+    implementation("org.web3j:crypto:4.8.7")
+
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

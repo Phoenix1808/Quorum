@@ -1,6 +1,7 @@
 package com.example.quorum
 
 import android.app.Application
+import com.example.quorum.data.remote.VoteManager
 import com.reown.android.Core
 import com.reown.android.CoreClient
 import com.reown.android.relay.ConnectionType
@@ -39,6 +40,8 @@ class QuorumApplication : Application() {
             onError = { error -> /* init fail */ }
         )
 
+        VoteManager.init(this)
+
         // Delegate — signature response yahan aata hai. Baaki methods khaali (crash na ho)
         AppKit.setDelegate(object : AppKit.ModalDelegate {
             override fun onSessionApproved(approvedSession: Modal.Model.ApprovedSession) {}
@@ -50,6 +53,7 @@ class QuorumApplication : Application() {
 
             override fun onSessionRequestResponse(response: Modal.Model.SessionRequestResponse) {
                 android.util.Log.d("QUORUM", "Signature Response -> $response")
+                VoteManager.onSignResponse(response)
             }
 
             override fun onProposalExpired(proposal: Modal.Model.ExpiredProposal) {}
