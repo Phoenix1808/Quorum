@@ -16,10 +16,12 @@ import com.reown.appkit.ui.components.button.AppKitState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.example.quorum.data.remote.VoteManager
 import com.reown.appkit.client.AppKit
 import com.reown.appkit.client.models.request.Request
 import org.json.JSONArray
 import org.json.JSONObject
+import org.web3j.crypto.Keys
 
 
 private fun voteData(from:String, space:String,proposal:String,choice:Int):String{
@@ -84,7 +86,7 @@ fun WalletScreen(
             Spacer(Modifier.height(16.dp))
 
             Button(onClick = {
-                val addr = AppKit.getAccount()?.address ?: return@Button
+                val addr = Keys.toChecksumAddress(AppKit.getAccount()?.address ?: return@Button)
                 val typeData = voteData(
                     from = addr, space = "ens.eth",
                     proposal = "0xe4e1c052b2ea4f640cab27ddec326df6290d8996a9219b60cda4c4d4509f5f9a",
@@ -92,10 +94,14 @@ fun WalletScreen(
                 )
                 val paramsJson = JSONArray().put(addr).put(typeData).toString()
 
+                // request bhejne se PEHLE pending store karo (bridge)
+                VoteManager.setPendingVote(addr, typeData)
+
                 val req = Request(
                     method = "eth_signTypedData_v4",
                     params = paramsJson
                 )
+
                 AppKit.request(
                     request = req,
                     onSuccess = { _ -> android.util.Log.d("Quorum", "request sent !!") },
