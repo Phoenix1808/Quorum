@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
+import com.example.quorum.data.remote.castVote
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -19,11 +20,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.material3.Button
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.font.FontWeight
 import com.example.quorum.data.model.Proposal
 import com.example.quorum.ui.components.formatDeadline
+import com.reown.appkit.client.AppKit
+import com.example.quorum.data.remote.VoteManager
+import com.example.quorum.data.remote.VoteStatus
 
 // TODO: ProposalDetailScreen — full proposal (body, choices, results)
 
@@ -89,6 +95,42 @@ private fun ProposalDetailContent(proposal: Proposal){
         }
 
         Spacer(Modifier.height(12.dp))
+
+        if(proposal.state == "active"){
+            Spacer(Modifier.height(20.dp))
+            Text("Cast Your Vote",style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(8.dp))
+
+            val acc = AppKit.getAccount()
+            if(acc == null){
+                Text("Connect your wallet to vote", style = MaterialTheme.typography.bodyMedium)
+            } else{
+                proposal.choices.forEachIndexed { index,choice->
+                    Button(
+                        onClick = {
+                            VoteManager.resetStatus()
+                            castVote(
+                                space = proposal.dao.id,
+                                proposalId=proposal.id,
+                                choice = index + 1
+                            )
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ){
+                        Text(choice)
+                    }
+                    Spacer(Modifier.height(8.dp))
+                }
+
+                val voteStatus by VoteManager.status.collectAsState()
+                when (val vs = voteStatus){
+                    is VoteStatus.Idle -> {}
+                    is VoteStatus.Submitting -> Text("Submitting Vote")
+                    is VoteStatus.Success -> Text("Vote Submitted Successfully")
+                    is VoteStatus.Error -> Text("${vs.message}")
+                }
+            }
+        }
 
         Text("Description", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(8.dp))
