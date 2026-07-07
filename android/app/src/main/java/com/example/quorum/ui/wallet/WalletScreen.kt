@@ -49,9 +49,9 @@ fun WalletScreen(
 
             Button(onClick = {
               castVote(
-                    space = "ens.eth",
-                    proposalId = "0xe4e1c052b2ea4f640cab27ddec326df6290d8996a9219b60cda4c4d4509f5f9a",
-                    choice = 1
+                    space = "mxlcolm.eth",
+                    proposalId = "0xbb0946295da31956587571aade81bf560370aeb407bc3c43ab1251e613273ef5",
+                    choice = 1 //"Wine" (choices: Wine/Beer/Spirits)
                 )
 
             }) {

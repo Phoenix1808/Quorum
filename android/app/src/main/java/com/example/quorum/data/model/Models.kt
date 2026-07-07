@@ -59,3 +59,11 @@ data class FollowRequest(
 data class FollowResponse(
     val follows: List<String>
 )
+
+data class VoteHistory(
+    val proposalTitle: String,
+    val choiceLabel: String,
+    val spaceName: String,
+    val state : String,
+    val created : Long,
+)

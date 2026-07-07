@@ -93,6 +93,9 @@ fun QuorumApp() {
                         onConnectClick = { scope.launch { modalSheetState.show() } }   // modal kholo
                     )
                 }
+                composable("history") {
+                    com.example.quorum.ui.history.HistoryScreen()
+                }
             }
         }
     }
@@ -105,7 +108,8 @@ fun QuorumBottomBar(navController: NavController) {
     val items = listOf(
         Triple("feed", "Feed", "🏠"),
         Triple("discovery", "Discover", "🔍"),
-        Triple("wallet", "Wallet", "👛")
+        Triple("wallet", "Wallet", "👛"),
+        Triple("history", "History", "🗳️")
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
