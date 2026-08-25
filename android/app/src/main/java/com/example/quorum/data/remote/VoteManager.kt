@@ -16,7 +16,9 @@ import org.json.JSONObject
 sealed interface VoteStatus {
     data object Idle : VoteStatus            // kuch nahi ho raha (default)
     data object Submitting : VoteStatus      // sign ho gaya, ab Snapshot ko bhej rahe
-    data object Success : VoteStatus         // Snapshot ne vote accept kar liya
+    // Success ab khaali nahi — Snapshot ki di hui vote id (receipt) leke aata hai.
+    // Yahi ek cheez hai jo sabit karti hai ki vote sach me land hua.
+    data class Success(val voteId: String) : VoteStatus
     data class Error(val message: String) : VoteStatus   // kuch galat hua + reason
 }
 
@@ -71,15 +73,30 @@ object VoteManager {
         // Network kaam hamesha background thread pe (IO) — UI thread block na ho.
         CoroutineScope(Dispatchers.IO).launch {
             try {
-                val resp = submitVote(address, sig as String, voteData)  // Snapshot ko POST
+                val result = submitVote(address, sig as String, voteData)  // Snapshot ko POST
 
-                // Snapshot ka jawab JSON hota. Error pe {"error":..., "error_description":"..."},
-                // success pe {"id":"0x..."}. To "error" key hai ya nahi — usse decide karte.
-                val json = try { JSONObject(resp) } catch (e: Exception) { null }
-                if (json != null && json.has("error")) {
-                    _status.value = VoteStatus.Error(json.optString("error_description", "Vote failed"))
-                } else {
-                    _status.value = VoteStatus.Success
+                // Snapshot success pe {"id":"0x...","ipfs":"..."} deta, error pe
+                // {"error":...,"error_description":"..."}. Pehle yahan parse fail hone par
+                // chup-chaap Success maan liya jaata tha — yaani gateway error ya HTML page
+                // pe bhi UI "vote ho gaya" dikha deta. Ab sab kuch explicit hai.
+                val json = try { JSONObject(result.body) } catch (e: Exception) { null }
+                val voteId = json?.optString("id").orEmpty()
+
+                _status.value = when {
+                    // Snapshot ne saaf-saaf error bola
+                    json != null && json.has("error") ->
+                        VoteStatus.Error(json.optString("error_description", "Vote failed"))
+
+                    // HTTP hi fail — body me chahe kuch bhi ho
+                    result.code !in 200..299 ->
+                        VoteStatus.Error("Snapshot HTTP ${result.code}: ${result.body.take(120)}")
+
+                    // JSON nahi mila, ya id nahi mili → vote land hone ka koi proof nahi
+                    voteId.isEmpty() ->
+                        VoteStatus.Error("No vote id in response: ${result.body.take(120)}")
+
+                    // Sirf yahan Success — receipt ke saath
+                    else -> VoteStatus.Success(voteId)
                 }
             } catch (e: Exception) {
                 // Internet gaya / server down jaisi dikkat

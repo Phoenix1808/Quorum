@@ -8,7 +8,11 @@ import org.json.JSONObject
 import okhttp3.OkHttpClient
 import okhttp3.Request
 
-suspend fun submitVote(address:String, sig: String, voteData: String): String = withContext(
+// Snapshot ka jawab do cheezein bata sakta hai: HTTP code AUR body. Pehle sirf
+// body lautti thi, isliye 200 aur 500 me farak hi nahi pata chalta tha.
+data class SubmitResult(val code: Int, val body: String)
+
+suspend fun submitVote(address:String, sig: String, voteData: String): SubmitResult = withContext(
     Dispatchers.IO) {
 
     val dataObj = JSONObject(voteData)
@@ -31,6 +35,6 @@ suspend fun submitVote(address:String, sig: String, voteData: String): String = 
     OkHttpClient().newCall(requ).execute().use{ resp ->
         val respBody= resp.body?.string() ?: ""
         android.util.Log.d("Quorum","Snapshot response (${resp.code}): $respBody")
-        respBody
+        SubmitResult(resp.code, respBody)
     }
 }

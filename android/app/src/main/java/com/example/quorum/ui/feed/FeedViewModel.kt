@@ -28,11 +28,13 @@ class FeedViewModel : ViewModel(){
         loadProposals()
     }
 
-    fun loadProposals(state:String?=null){
+    // spaces = comma-separated Snapshot space ids. null = backend ke default 3 DAOs.
+    // Repository/Retrofit me ye param pehle se tha, bas Feed kabhi bhejta nahi tha.
+    fun loadProposals(state:String?=null, spaces:String?=null){
         _uistate.value = FeedUiState.Loading
         viewModelScope.launch {
             try{
-                val proposals = repository.getProposals(state=state)
+                val proposals = repository.getProposals(spaces=spaces, state=state)
                 _uistate.value = FeedUiState.Success(proposals)
             } catch (e:Exception){
                 _uistate.value = FeedUiState.Error(e.message?:"Something went wrong")

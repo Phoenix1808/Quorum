@@ -64,7 +64,7 @@ fun WalletScreen(
             when (val vs = voteStatus) {
                 is VoteStatus.Idle -> {}                                          // kuch mat dikhao
                 is VoteStatus.Submitting -> Text("Submitting vote…")
-                is VoteStatus.Success -> Text("✅ Vote submitted!")
+                is VoteStatus.Success -> Text("✅ Vote submitted - id ${vs.voteId.take(10)}...")
                 is VoteStatus.Error -> Text("❌ ${vs.message}")
             }
 

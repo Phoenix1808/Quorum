@@ -126,7 +126,7 @@ private fun ProposalDetailContent(proposal: Proposal){
                 when (val vs = voteStatus){
                     is VoteStatus.Idle -> {}
                     is VoteStatus.Submitting -> Text("Submitting Vote")
-                    is VoteStatus.Success -> Text("Vote Submitted Successfully")
+                    is VoteStatus.Success -> Text("Vote submitted - id ${vs.voteId.take(10)}...")
                     is VoteStatus.Error -> Text("${vs.message}")
                 }
             }
