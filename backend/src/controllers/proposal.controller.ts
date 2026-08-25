@@ -20,7 +20,11 @@ export async function getProposals(req:Request,res:Response){
         res.json({page,count: proposals.length, proposals});
     } catch(err){
         console.error("getProposals error: ", err)
-        res.status(500).json({error:"Faild to fetch the proposals"})
+        // asli wajah bhejo — "Faild to fetch" se kuch pata nahi chalta tha
+        res.status(502).json({
+            error:"Failed to fetch the proposals",
+            detail:(err as Error).message
+        })
     }
 }
 
@@ -36,6 +40,11 @@ export async function getProposalById(req:Request,res:Response){
         res.json({proposal})
     } catch(err){
         console.error("getProposalByID error :",err);
-        res.status(500).json({error:"Failed to fetch proposal"})
+        // asli wajah bhejo — detail screen isi endpoint pe chalti hai, isliye
+        // yahan ka error debug karne layak hona chahiye
+        res.status(502).json({
+            error:"Failed to fetch proposal",
+            detail:(err as Error).message
+        })
     }
 }
