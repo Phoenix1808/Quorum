@@ -26,9 +26,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quorum.ui.components.ProposalCard
 
-// TEMP: vote verification ke liye target space. ticket strategy, voteValidation "any",
-// minScore 0 — matlab koi bhi address vote kar sakta hai. Verify ke baad hata dena.
-private const val TEST_SPACE = "arcantarot.eth"
+// TEMP: vote verification ke liye target spaces. Sab ticket strategy + voteValidation "any"
+// + minScore 0 — matlab koi bhi address vote kar sakta hai. Backend comma pe split karta hai
+// (proposal.controller.ts), isliye ek hi request me saare aa jate hain.
+// Ek space pe vote kar liya to (ticket = 1 vote per address) dusre pe kar sakte ho.
+// Verify ho jaane ke baad ye constant aur "Test" chip dono hata dena.
+private const val TEST_SPACE = "arcantarot.eth,noonday.eth,cand.eth,0xling.eth"
 
 @Composable
 fun FeedScreen(

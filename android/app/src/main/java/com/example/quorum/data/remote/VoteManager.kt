@@ -35,9 +35,31 @@ object VoteManager {
     private val _status = MutableStateFlow<VoteStatus>(VoteStatus.Idle)
     val status: StateFlow<VoteStatus> = _status.asStateFlow()
 
+    // Pending vote itni der se pada ho to maan lo wallet ne kabhi jawab diya hi nahi.
+    // Iske bina UI hamesha ke liye "Submitting" pe atak jata.
+    private const val PENDING_TTL_MS = 5 * 60 * 1000L
+
     // App start pe ek baar (QuorumApplication se) — disk storage taiyaar karta.
     fun init(context: Context) {
         prefs = context.getSharedPreferences("quorum_vote", Context.MODE_PRIVATE)
+
+        // Process death ke baad status BHI wapas laana zaroori hai, sirf data nahi.
+        // Warna naya process status Idle dikhata, user ko lagta kuch hua hi nahi, woh
+        // dobara tap karta — aur dusra tap pehle wale ka data overwrite kar deta. Fir
+        // pehle wala signature dusre wale data ke saath jata -> "signature validation failed".
+        val hasPending = prefs.getString("data", null) != null
+        val pendingAt = prefs.getLong("at", 0L)
+        when {
+            !hasPending -> Unit
+            System.currentTimeMillis() - pendingAt > PENDING_TTL_MS -> clearPending()
+            else -> _status.value = VoteStatus.Submitting
+        }
+    }
+
+    // Pending vote hatane ki ek hi jagah — pehle ye do jagah alag-alag hota tha aur
+    // error wale raste me hota hi nahi tha.
+    private fun clearPending() {
+        prefs.edit().remove("addr").remove("data").remove("at").apply()
     }
 
     // Naya vote start karne se pehle UI purana result (✅/❌) saaf kar sake.
@@ -51,6 +73,7 @@ object VoteManager {
         prefs.edit()
             .putString("addr", address)
             .putString("data", voteData)
+            .putLong("at", System.currentTimeMillis())   // TTL ke liye
             .apply()
         _status.value = VoteStatus.Submitting   // UI ko batao: kaam chalu ho gaya
     }
@@ -62,7 +85,10 @@ object VoteManager {
         // Agar result "JsonRpcResult" nahi hai, matlab signature mila hi nahi —
         // aksar isliye ki user ne wallet me "Reject"/cancel kar diya.
         if (result !is Modal.Model.JsonRpcResponse.JsonRpcResult) {
-            _status.value = VoteStatus.Error("Signature rejected")
+            // Pehle yahan se seedha return hota tha — pending vote disk pe pada reh jata
+            // aur agli baar kisi DUSRE signature ke saath jud jata. Isliye pehle saaf karo.
+            clearPending()
+            _status.value = VoteStatus.Error("Signature rejected ya wallet ne mana kiya")
             return
         }
 
@@ -105,6 +131,6 @@ object VoteManager {
         }
 
         // Pending vote ab use ho chuka — disk se hata do (agli baar confusion na ho).
-        prefs.edit().remove("addr").remove("data").apply()
+        clearPending()
     }
 }

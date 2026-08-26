@@ -105,6 +105,11 @@ private fun ProposalDetailContent(proposal: Proposal){
             if(acc == null){
                 Text("Connect your wallet to vote", style = MaterialTheme.typography.bodyMedium)
             } else{
+                // Status buttons se PEHLE padho — ek vote chalu hone par baaki taps
+                // block karne hain. Do sign request ek saath = data overwrite = fail.
+                val voteStatus by VoteManager.status.collectAsState()
+                val voteInFlight = voteStatus is VoteStatus.Submitting
+
                 proposal.choices.forEachIndexed { index,choice->
                     Button(
                         onClick = {
@@ -115,6 +120,7 @@ private fun ProposalDetailContent(proposal: Proposal){
                                 choice = index + 1
                             )
                         },
+                        enabled = !voteInFlight,
                         modifier = Modifier.fillMaxWidth()
                     ){
                         Text(choice)
@@ -122,7 +128,6 @@ private fun ProposalDetailContent(proposal: Proposal){
                     Spacer(Modifier.height(8.dp))
                 }
 
-                val voteStatus by VoteManager.status.collectAsState()
                 when (val vs = voteStatus){
                     is VoteStatus.Idle -> {}
                     is VoteStatus.Submitting -> Text("Submitting Vote")
