@@ -21,8 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quorum.data.model.VoteHistory
-import com.reown.appkit.client.AppKit
-import org.web3j.crypto.Keys
+import com.example.quorum.data.remote.WalletSession
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -32,12 +31,17 @@ fun HistoryScreen(
     modifier: Modifier = Modifier,
     viewModel: HistoryViewModel = viewModel()
 ) {
-    // connected wallet ka address (checksummed — Snapshot voter checksummed store karta)
-    val address = AppKit.getAccount()?.address?.let { Keys.toChecksumAddress(it) }
+    // WalletSession se — StateFlow hai, isliye connect/disconnect par screen apne aap
+    // update hoti hai. Pehle AppKit.getAccount() seedha padha jata tha jo reactive nahi
+    // hai: History tab khol kar wallet connect karo to screen "Connect your wallet" pe
+    // hi atki rehti thi jab tak tum tab badal kar wapas na aao.
+    val address by WalletSession.address.collectAsStateWithLifecycle()
 
-    // address milte hi (ya badalte hi) votes load karo
+    // address milte hi (ya badalte hi) votes load karo.
+    // local val isliye ki delegated property (`by`) par smart-cast nahi hota.
     LaunchedEffect(address) {
-        if (address != null) viewModel.loadVotes(address)
+        val addr = address
+        if (addr != null) viewModel.loadVotes(addr)
     }
 
     val state by viewModel.uiState.collectAsStateWithLifecycle()

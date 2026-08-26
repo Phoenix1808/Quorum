@@ -27,8 +27,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.text.font.FontWeight
 import com.example.quorum.data.model.Proposal
 import com.example.quorum.ui.components.formatDeadline
-import com.reown.appkit.client.AppKit
 import com.example.quorum.data.remote.VoteManager
+import com.example.quorum.data.remote.WalletSession
 import com.example.quorum.data.remote.VoteStatus
 
 // TODO: ProposalDetailScreen — full proposal (body, choices, results)
@@ -101,8 +101,8 @@ private fun ProposalDetailContent(proposal: Proposal){
             Text("Cast Your Vote",style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(8.dp))
 
-            val acc = AppKit.getAccount()
-            if(acc == null){
+            val walletAddress by WalletSession.address.collectAsStateWithLifecycle()
+            if(walletAddress == null){
                 Text("Connect your wallet to vote", style = MaterialTheme.typography.bodyMedium)
             } else{
                 // Status buttons se PEHLE padho — ek vote chalu hone par baaki taps
