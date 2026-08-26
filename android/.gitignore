@@ -13,3 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Firebase config -- ye har APK me ship hota hai (secret nahi hai), par isme Google
+# API key hoti hai jispe GitHub ka secret scanner alert bhejta hai. Repo se bahar
+# rakhte hain. Apna banane ke liye google-services.json.example dekho.
+google-services.json

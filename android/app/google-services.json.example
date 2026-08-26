@@ -1,0 +1,35 @@
+{
+  "_comment": [
+    "Ye TEMPLATE hai. Asli file Firebase Console se aati hai:",
+    "Project Settings -> Your apps -> Android app -> google-services.json download",
+    "Use android/app/google-services.json ke naam se save karo (woh gitignored hai).",
+    "Android package name 'com.example.quorum' hona chahiye."
+  ],
+  "project_info": {
+    "project_number": "YOUR_PROJECT_NUMBER",
+    "project_id": "your-project-id",
+    "storage_bucket": "your-project-id.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:YOUR_PROJECT_NUMBER:android:YOUR_APP_ID",
+        "android_client_info": {
+          "package_name": "com.example.quorum"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "YOUR_ANDROID_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
