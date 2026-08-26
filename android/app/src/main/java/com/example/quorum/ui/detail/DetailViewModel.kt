@@ -11,8 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// TODO: DetailViewModel — single proposal fetch by id + UI state
-
 sealed interface DetailUiState{
     data object Loading: DetailUiState
     data class Success(val proposal: Proposal) : DetailUiState

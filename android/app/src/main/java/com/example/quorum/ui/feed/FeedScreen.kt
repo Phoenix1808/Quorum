@@ -26,13 +26,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quorum.ui.components.ProposalCard
 
-// TEMP: vote verification ke liye target spaces. Sab ticket strategy + voteValidation "any"
-// + minScore 0 — matlab koi bhi address vote kar sakta hai. Backend comma pe split karta hai
-// (proposal.controller.ts), isliye ek hi request me saare aa jate hain.
-// Ek space pe vote kar liya to (ticket = 1 vote per address) dusre pe kar sakte ho.
-// Verify ho jaane ke baad ye constant aur "Test" chip dono hata dena.
-private const val TEST_SPACE = "arcantarot.eth,noonday.eth,cand.eth,0xling.eth"
-
 @Composable
 fun FeedScreen(
     modifier: Modifier = Modifier,
@@ -43,9 +36,6 @@ fun FeedScreen(
 
     // local UI state kaunsa filter selected hai (null = All)
     var selectedFilter by remember { mutableStateOf<String?>(null) }
-    // TEMP (vote verification): test space mode on/off. Verify ho jaane ke baad
-    // ye aur neeche wala "Test" chip dono hata dena.
-    var testMode by remember { mutableStateOf(false) }
     val filters = listOf(
         "All" to null,
         "Active" to "active",
@@ -61,26 +51,14 @@ fun FeedScreen(
         ) {
             filters.forEach { (label, value) ->
                 FilterChip(
-                    selected = !testMode && selectedFilter == value,
+                    selected = selectedFilter == value,
                     onClick = {
-                        testMode = false
                         selectedFilter = value
                         viewModel.loadProposals(state = value)
                     },
                     label = { Text(label) }
                 )
             }
-
-            // TEMP: ticket-strategy space jahan koi bhi vote kar sakta hai —
-            // gasless voting ko end-to-end verify karne ke liye. Baad me hata dena.
-            FilterChip(
-                selected = testMode,
-                onClick = {
-                    testMode = true
-                    viewModel.loadProposals(state = "active", spaces = TEST_SPACE)
-                },
-                label = { Text("Test") }
-            )
         }
 
        //content is within the column
@@ -111,10 +89,7 @@ fun FeedScreen(
                     ) {
                         Text(s.message)
                         Spacer(Modifier.height(8.dp))
-                        Button(onClick = {
-                            if (testMode) viewModel.loadProposals(state = "active", spaces = TEST_SPACE)
-                            else viewModel.loadProposals(state = selectedFilter)
-                        }) {
+                        Button(onClick = { viewModel.loadProposals(state = selectedFilter) }) {
                             Text("Retry")
                         }
                     }

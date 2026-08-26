@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// TODO: DiscoveryViewModel — DAO list fetch + follow/unfollow state
 sealed interface DiscoveryUiState{
     data object Loading : DiscoveryUiState
     data class Success(val daos: List<DaoItem>,val followed: Set<String>): DiscoveryUiState

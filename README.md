@@ -43,13 +43,13 @@ Quorum brings all of this to your phone: see what's being voted on, follow the D
 
 | Feature | Status |
 |---------|--------|
-| 📋 **Proposal Feed** — browse proposals from Uniswap/Aave/ENS, filter by All/Active/Closed | ✅ |
+| 📋 **Proposal Feed** — browse proposals from ENS/Aave/Uniswap/Gnosis/Arbitrum, filter by All/Active/Closed | ✅ |
 | 📄 **Proposal Detail** — full description, live results per choice, deadline | ✅ |
 | 🔍 **DAO Discovery** — browse DAOs (followers, proposal counts) + follow/unfollow | ✅ |
 | 👛 **Wallet Connect** — connect any wallet via WalletConnect/Reown, see your address | ✅ |
-| 🔔 **Deadline notifications** — backend cron detects 24h/1h windows *(delivery wiring in v1.1)* | 🚧 |
-| 🗳️ **Gasless voting** — sign & submit votes to Snapshot (EIP-712) | 🔮 v1.1 |
-| 📊 **Vote history** — your past votes + stats | 🔮 v1.1 |
+| 🗳️ **Gasless voting** — sign & submit votes to Snapshot (EIP-712), survives process death | ✅ |
+| 📊 **Vote history** — your past votes, and "you voted" shown on each proposal | ✅ |
+| 🔔 **Deadline notifications** — push when a followed DAO's proposal closes in 24h/1h | ✅ |
 
 ---
 
@@ -125,9 +125,9 @@ cd android
 
 ## 🗺️ Roadmap
 
-- **v1 (current):** Browse + filter proposals, DAO discovery + follow, wallet connect
-- **v1.1:** Gasless voting (EIP-712 → Snapshot), push notification delivery (FCM), vote history
-- **v2:** On-chain voting (Tally), analytics/charts, more DAOs, multi-chain
+- **v1:** Browse + filter proposals, DAO discovery + follow, wallet connect
+- **v1.1 (current):** Gasless voting (EIP-712 → Snapshot), vote history, FCM deadline notifications
+- **v2:** On-chain voting (Tally), analytics/charts, more DAOs, multi-chain, offline cache
 
 ---
 

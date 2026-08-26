@@ -21,6 +21,10 @@ object PushRegistration {
     private val repo = QuorumRepository()
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    // Abhi kaun sa address|token register ho raha hai (duplicate call rokne ke liye)
+    @Volatile
+    private var inFlight: String? = null
+
     fun init(context: Context) {
         prefs = context.getSharedPreferences("quorum_push", Context.MODE_PRIVATE)
 
@@ -39,6 +43,10 @@ object PushRegistration {
         tryRegister()
     }
 
+    // App start pe tryRegister() do jagah se chalta hai -- WalletSession collect se aur
+    // onToken se. Bina guard ke dono ek saath check pass kar lete the (35ms ke antar par)
+    // aur do register calls ban jati thi. Backend idempotent hai, par call bekaar thi.
+    @Synchronized
     private fun tryRegister() {
         if (!::prefs.isInitialized) return
         val token = prefs.getString("token", null) ?: return
@@ -48,6 +56,8 @@ object PushRegistration {
         // hai, par network call bekaar hai). Jo aakhri baar bheja tha wahi hai to skip.
         val signature = "$address|$token"
         if (prefs.getString("registered", null) == signature) return
+        if (inFlight == signature) return   // pehle se ja rahi hai
+        inFlight = signature
 
         scope.launch {
             try {
@@ -57,6 +67,8 @@ object PushRegistration {
             } catch (e: Exception) {
                 // Network fail -> agli baar (wallet event ya token refresh) phir try hoga
                 android.util.Log.e("Quorum", "FCM register failed: ${e.message}")
+            } finally {
+                inFlight = null
             }
         }
     }

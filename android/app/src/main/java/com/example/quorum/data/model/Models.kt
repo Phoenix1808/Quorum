@@ -1,6 +1,5 @@
 package com.example.quorum.data.model
 
-// TODO: data classes — Proposal, Dao, DaoItem, ProposalsResponse, etc.
 data class Dao(
     val id : String, val name : String,
 )
@@ -20,7 +19,6 @@ data class Proposal(
 data class ProposalsResponse(
     val page: Int, val count: Int, val proposals: List<Proposal>
 )
-
 
 data class ProposalDetailResponse(
   val proposal : Proposal

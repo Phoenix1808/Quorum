@@ -1,6 +1,5 @@
 package com.example.quorum.data.remote
 
-
 import com.example.quorum.data.model.DaosResponse
 import com.example.quorum.data.model.FollowRequest
 import com.example.quorum.data.model.FollowResponse
@@ -15,7 +14,6 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
-// TODO: Retrofit interface — QuorumApi (getProposals, getProposal, getDaos, follow...)
 interface QuorumApi{
 
     @GET("api/proposals")

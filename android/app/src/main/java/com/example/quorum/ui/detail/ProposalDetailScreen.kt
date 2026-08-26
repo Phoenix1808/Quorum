@@ -31,8 +31,6 @@ import com.example.quorum.data.remote.VoteManager
 import com.example.quorum.data.remote.WalletSession
 import com.example.quorum.data.remote.VoteStatus
 
-// TODO: ProposalDetailScreen — full proposal (body, choices, results)
-
 @Composable
 fun ProposalDetailScreen(
     proposalId: String,

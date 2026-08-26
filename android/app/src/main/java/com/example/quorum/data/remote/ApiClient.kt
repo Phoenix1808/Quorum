@@ -5,7 +5,6 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-// TODO: Retrofit client — ApiClient (base URL, OkHttp, GsonConverter)
 object ApiClient{
     private const val BASE_URL = "https://quorum-t5uv.onrender.com"
 

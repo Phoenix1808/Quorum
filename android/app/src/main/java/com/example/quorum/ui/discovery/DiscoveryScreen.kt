@@ -34,8 +34,6 @@ import com.example.quorum.data.model.DaoItem
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
-// TODO: DiscoveryScreen — DAO cards + follow button
-
 //ipfs: //converts url to http gateway
 
 @Composable

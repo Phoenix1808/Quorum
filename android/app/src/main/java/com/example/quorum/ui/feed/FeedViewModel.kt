@@ -10,8 +10,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-// TODO: FeedViewModel — proposals fetch + UI state (loading/success/error)
-
 sealed interface FeedUiState{
     data object Loading : FeedUiState
     data class Success(val proposals: List<Proposal>) : FeedUiState
