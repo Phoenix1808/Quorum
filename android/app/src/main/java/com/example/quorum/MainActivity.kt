@@ -19,6 +19,8 @@ import androidx.compose.material.TopAppBar
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,6 +33,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quorum.ui.detail.ProposalDetailScreen
 import com.example.quorum.ui.discovery.DiscoveryScreen
 import com.example.quorum.ui.feed.FeedScreen
+import com.example.quorum.data.remote.WalletSession
 import com.example.quorum.ui.theme.QuorumTheme
 import com.example.quorum.ui.wallet.WalletScreen
 import com.reown.appkit.ui.components.button.rememberAppKitState
@@ -59,6 +62,12 @@ fun QuorumApp() {
         skipHalfExpanded = true
     )
     val scope = rememberCoroutineScope()
+
+    // AppKit ka isConnected ek asli StateFlow hai, isliye usi ko WalletSession ka
+    // trigger banate hain. Ye cold start bhi cover karta hai -- session async load
+    // hota hai, to Application.onCreate ke waqt getAccount() abhi null de sakta hai.
+    val isWalletConnected by appKitState.isConnected.collectAsState()
+    LaunchedEffect(isWalletConnected) { WalletSession.refresh() }
 
     ModalBottomSheetLayout(
         sheetState = modalSheetState,
