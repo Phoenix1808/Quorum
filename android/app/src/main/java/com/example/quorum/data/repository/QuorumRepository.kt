@@ -2,6 +2,7 @@ package com.example.quorum.data.repository
 
 import com.example.quorum.data.model.DaoItem
 import com.example.quorum.data.model.FollowRequest
+import com.example.quorum.data.model.RegisterRequest
 import com.example.quorum.data.model.Proposal
 import com.example.quorum.data.remote.ApiClient
 
@@ -17,6 +18,12 @@ class QuorumRepository {
 
     suspend fun getProposal(id: String): Proposal {
         return ApiClient.api.getProposal(id).proposal
+    }
+
+    // Backend address+fcmToken store karta hai aur address ko global "users" set me
+    // daalta hai -- deadline cron usi set par chalta hai.
+    suspend fun register(address: String, fcmToken: String){
+        ApiClient.api.register(RegisterRequest(address, fcmToken))
     }
 
     suspend fun getDaos(): List<DaoItem>{

@@ -1,8 +1,10 @@
 package com.example.quorum
 
 import android.app.Application
+import com.example.quorum.data.remote.PushRegistration
 import com.example.quorum.data.remote.VoteManager
 import com.example.quorum.data.remote.WalletSession
+import com.google.firebase.messaging.FirebaseMessaging
 import com.reown.android.Core
 import com.reown.android.CoreClient
 import com.reown.android.relay.ConnectionType
@@ -42,6 +44,18 @@ class QuorumApplication : Application() {
         )
 
         VoteManager.init(this)
+        PushRegistration.init(this)
+
+        // onNewToken sirf token BADALNE par aata hai. Normal launch pe woh call hi nahi
+        // hota, isliye maujooda token yahan se maangna padta hai -- warna pehli install
+        // ke baad kabhi register hi nahi hote.
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                PushRegistration.onToken(task.result)
+            } else {
+                android.util.Log.e("Quorum", "FCM token nahi mila: ${task.exception?.message}")
+            }
+        }
 
         // Delegate — signature response yahan aata hai. Baaki methods khaali (crash na ho)
         AppKit.setDelegate(object : AppKit.ModalDelegate {

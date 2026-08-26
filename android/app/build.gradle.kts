@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    // google-services.json padh kar Firebase config generate karta hai
+    alias(libs.plugins.google.services)
 }
 
 // local.properties se secrets load (gitignored — public repo mein nahi jaate)
@@ -90,6 +92,11 @@ dependencies {
     // Material 2 — Reown AppKit ka modal (ModalBottomSheetLayout) isi pe chalta
     implementation("androidx.compose.material:material")
     implementation(libs.androidx.material3)
+
+    // Firebase Cloud Messaging — proposal deadline push notifications.
+    // BOM version manage karta hai, isliye messaging pe version nahi likhte.
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
 
     // web3j crypto — EIP-55 address checksum (Keys.toChecksumAddress)
     // 4.8.7 = Android-friendly (newer versions use Java records → desugaring error)

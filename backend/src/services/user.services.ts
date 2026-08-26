@@ -24,6 +24,19 @@ export async function list(address:string){
     const key = `user:${address.toLowerCase()}:follows`;
     return redis.smembers(key); //smembers => all items of set
 }
+// Push bhejne ke liye user ka token chahiye
+export async function getToken(address:string){
+    const key = `user:${address.toLowerCase()}`;
+    return redis.hget(key,"fcmToken");
+}
+
+// Token invalid ho gaya (app uninstall / data clear) -> hata do, warna har cron run
+// me usi dead token par bhejne ki koshish hoti rahegi.
+export async function clearToken(address:string){
+    const key = `user:${address.toLowerCase()}`;
+    await redis.hdel(key,"fcmToken");
+}
+
 export async function getAllUsers(){
     return redis.smembers("users");
 }

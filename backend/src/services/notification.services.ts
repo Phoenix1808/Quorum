@@ -1,8 +1,9 @@
 //deadline check 
 
 import { redis } from "../clients/redis.client";
-import { follow, getAllUsers } from "./user.services";
+import { follow, getAllUsers, getToken, clearToken } from "./user.services";
 import {list as getFollows} from "./user.services";
+import { messaging } from "../clients/firebase.client";
 import { getPropsCached } from "./proposal.services";
 import { DAOs } from "../config/dao";
 
@@ -30,6 +31,42 @@ async function markSent(address:string,proposalId:string,type:string){
     await redis.set(key,"1","EX",2 * day) //2 din baad record khud expire
 }
 
+// Ek push bhejo. true = gaya, false = nahi gaya.
+//
+// notification + data DONO bhejte hain:
+//   - app background me ho -> Android khud notification dikha deta hai (notification se)
+//   - app foreground me ho -> onMessageReceived call hota hai, app khud dikhata hai (data se)
+// Sirf data bhejte to background me delivery deprioritize ho sakti thi.
+async function sendPush(address:string, token:string, p:any, type:"1h"|"24h"){
+    if(!messaging){
+        console.log(`[PUSH OFF] ${address} -> "${p.title}" (${type})`);
+        return false;
+    }
+
+    const title = `${p.dao.name} — voting closes in ${type}`;
+    const body = p.title;
+
+    try{
+        await messaging.send({
+            token,
+            notification: { title, body },
+            data: { proposalId: String(p.id), title, body },
+        });
+        console.log(`[SENT] ${address} -> "${p.title}" (${type})`);
+        return true;
+    } catch(err:any){
+        const code = err?.errorInfo?.code || err?.code || "";
+        // Token mar chuka hai -> hata do, warna har 15 min isi par try hota rahega
+        if(code.includes("registration-token-not-registered") || code.includes("invalid-argument")){
+            console.warn(`[DEAD TOKEN] ${address} -> hata rahe hain (${code})`);
+            await clearToken(address);
+        } else {
+            console.error(`[PUSH FAIL] ${address}:`, err?.message || err);
+        }
+        return false;
+    }
+}
+
 //this fxn will trigger cron repeatedly
 export async function DeadlineCheck(){
   const now = Math.floor(Date.now()/1000);
@@ -44,6 +81,13 @@ export async function DeadlineCheck(){
     const followsIds = await getFollows(address);
     if(followsIds.length==0) continue;
 
+    // Token nahi hai to proposals fetch karne ka bhi koi fayda nahi
+    const token = await getToken(address);
+    if(!token){
+        console.log(`  ${address}: koi fcmToken nahi -- skip`);
+        continue;
+    }
+
     const spaces = followsIds
     .map((id)=>DAOs.find((d)=>d.id===id)?.space)
     .filter(Boolean) as string[];
@@ -57,8 +101,11 @@ export async function DeadlineCheck(){
         const type = getRem(p.end,now)
         if(!type) continue;
         if(await alreadySent(address,p.id,type)) continue;
-        console.log(`[WOULD SEND] ${address} → "${p.title}" (${p.dao.name}) closing in ${type}`)
-        await markSent(address, p.id, type);
+
+        // markSent SIRF tab jab sach me chala gaya ho -- warna ek network hiccup par
+        // user ka reminder hamesha ke liye gum ho jayega (dedup key 2 din rehti hai).
+        const ok = await sendPush(address, token, p, type);
+        if(ok) await markSent(address, p.id, type);
     }
   }
   console.log("Deadline Check Done ..")

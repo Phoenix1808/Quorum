@@ -1,9 +1,14 @@
 package com.example.quorum
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.enableEdgeToEdge
+import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -41,9 +46,26 @@ import com.reown.appkit.ui.components.internal.AppKitComponent
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
+
+    // Android 13 (API 33) se notification dikhane ke liye user se poochna padta hai.
+    // Mana kar de to app normal chalti rahegi, bas deadline reminders nahi dikhenge.
+    private val notificationPermission =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            android.util.Log.d("Quorum", "Notification permission granted=$granted")
+        }
+
+    private fun askNotificationPermission() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) return
+        val already = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!already) notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        askNotificationPermission()
         setContent {
             QuorumTheme {
                 QuorumApp()
