@@ -4,7 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -20,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -60,11 +63,28 @@ fun QuorumApp() {
     ModalBottomSheetLayout(
         sheetState = modalSheetState,
         sheetContent = {
-            // wallet picker UI (list/QR) — Reown deta
-            AppKitComponent(
-                shouldOpenChooseNetwork = false,
-                closeModal = { scope.launch { modalSheetState.hide() } }
-            )
+            // AppKitComponent apna ANDRUNI NavHost banata hai (rememberAnimatedNavController).
+            // sheetContent Compose tab bhi compose karta hai jab sheet chhupi ho — matlab woh
+            // NavHost hamesha zinda rehta. Process marne par (wallet foreground me hote hue)
+            // uska back stack save ho jata, aur restore pe AppKit apna graph dobara banata hai
+            // jisme purana destination milta hi nahi -> IllegalStateException, app crash.
+            // Isliye ise sirf tab compose karo jab sheet khul rahi ho ya khuli ho.
+            // targetValue = animation kahan ja rahi (show() pe turant badalta),
+            // currentValue = abhi kahan hai. Dono Hidden hain tabhi khaali rakhna hai.
+            val sheetOpening = modalSheetState.targetValue != ModalBottomSheetValue.Hidden ||
+                    modalSheetState.currentValue != ModalBottomSheetValue.Hidden
+
+            if (sheetOpening) {
+                // wallet picker UI (list/QR) — Reown deta
+                AppKitComponent(
+                    shouldOpenChooseNetwork = false,
+                    closeModal = { scope.launch { modalSheetState.hide() } }
+                )
+            } else {
+                // ModalBottomSheetLayout khaali sheetContent pe crash karta hai
+                // ("no anchors"), isliye 1dp ka placeholder chahiye.
+                Spacer(Modifier.height(1.dp))
+            }
         }
     ) {
         Scaffold(
