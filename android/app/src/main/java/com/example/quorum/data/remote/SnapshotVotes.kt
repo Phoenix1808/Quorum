@@ -9,6 +9,36 @@ import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import org.json.JSONObject
 
+// Ek address ka ek PROPOSAL par vote. null = abhi tak vote nahi kiya.
+//
+// Snapshot har address ka ek hi vote record rakhta hai -- dobara vote karo to purana
+// replace ho jata hai, naya record nahi banta. (120 votes wale proposal par 120 unique
+// voters, ek bhi duplicate nahi.) Isliye first:1 kaafi hai.
+suspend fun fetchUserVoteOn(address: String, proposalId: String): Int? = withContext(Dispatchers.IO){
+    val query = """
+    query{
+        votes(first:1, where:{voter: "$address", proposal: "$proposalId"}){
+            choice
+        }
+    }
+    """.trimIndent()
+
+    val payload = JSONObject().put("query",query).toString()
+    val body = payload.toRequestBody("application/json".toMediaType())
+    val req = Request.Builder().url("https://hub.snapshot.org/graphql").post(body).build()
+
+    OkHttpClient().newCall(req).execute().use { resp ->
+        val text = resp.body?.string() ?: return@withContext null
+        val arr = JSONObject(text).optJSONObject("data")?.optJSONArray("votes")
+        if (arr == null || arr.length() == 0) return@withContext null
+
+        // basic / single-choice me choice ek Int hota hai (1-based index).
+        // approval/ranked/weighted me array ya object aata hai -- unhe hum abhi
+        // support nahi karte (castVote bhi uint32 hi bhejta hai), to null.
+        arr.getJSONObject(0).get("choice") as? Int
+    }
+}
+
 suspend fun fetchUserVotes(address:String): List<VoteHistory> = withContext(Dispatchers.IO){
     val query = """
     query{

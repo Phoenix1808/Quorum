@@ -44,6 +44,22 @@ fun ProposalDetailScreen(
     }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
 
+    // Wallet ya proposal badle to pehle se pada vote dobara check karo
+    val walletAddress by WalletSession.address.collectAsStateWithLifecycle()
+    LaunchedEffect(proposalId, walletAddress) {
+        viewModel.loadMyVote(walletAddress, proposalId)
+    }
+    val myVote by viewModel.myVote.collectAsStateWithLifecycle()
+
+    // Vote submit hone ke baad indicator refresh karo. Snapshot ko index karne me
+    // ek pal lagta hai, isliye turant na dikhe to screen dobara kholne par dikhega.
+    val voteStatusForRefresh by VoteManager.status.collectAsState()
+    LaunchedEffect(voteStatusForRefresh) {
+        if (voteStatusForRefresh is VoteStatus.Success) {
+            viewModel.loadMyVote(walletAddress, proposalId)
+        }
+    }
+
     Box(modifier = modifier.fillMaxSize()){
         when (val s = state){
             is DetailUiState.Loading ->
@@ -53,13 +69,13 @@ fun ProposalDetailScreen(
                 Text(s.message, Modifier.align(Alignment.Center))
 
             is DetailUiState.Success ->
-                ProposalDetailContent(s.proposal)
+                ProposalDetailContent(s.proposal, myVote)
         }
     }
 }
 
 @Composable
-private fun ProposalDetailContent(proposal: Proposal){
+private fun ProposalDetailContent(proposal: Proposal, myVote: Int?){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -109,6 +125,20 @@ private fun ProposalDetailContent(proposal: Proposal){
                 // block karne hain. Do sign request ek saath = data overwrite = fail.
                 val voteStatus by VoteManager.status.collectAsState()
                 val voteInFlight = voteStatus is VoteStatus.Submitting
+
+                // Pehle se vote kiya hua hai to bata do -- ye Snapshot se aaya sach hai.
+                //
+                // Buttons phir bhi enabled rehte hain, par app ye NAHI kehta ki vote badla
+                // ja sakta hai. Snapshot ek address ka ek hi record rakhta hai, lekin dusra
+                // vote replace hota hai ya reject -- ye humne verify nahi kiya. Bina verify
+                // kiye vaada karne se accha hai chup rehna: allowed hua to user try kar lega,
+                // nahi hua to asli error message dikh jayega.
+                if (myVote != null) {
+                    val label = proposal.choices.getOrNull(myVote - 1) ?: "choice $myVote"
+                    Text("You voted: $label", style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold)
+                    Spacer(Modifier.height(8.dp))
+                }
 
                 proposal.choices.forEachIndexed { index,choice->
                     Button(
