@@ -1,5 +1,3 @@
-# Ye folder Quorum ka hissa nahi hai -- alag Android projects hain jo galti se
-# is directory ke andar ban gaye. Inke apne repos hain. Yahan ignore kar rahe hain
-# taaki `git add .` inhe Quorum ke commits me na kheench le.
+
 BlackBox/
 FaceFrame/
