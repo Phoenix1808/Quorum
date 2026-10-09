@@ -43,6 +43,9 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
+      - name: Run Androi Lint
+        run: ./gradlew lintDebug
+
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
         with:
