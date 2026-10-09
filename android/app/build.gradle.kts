@@ -1,12 +1,24 @@
 import java.util.Properties
 import java.io.FileInputStream
 
+detekt {
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+}
+
+tasks.withType<dev.detekt.gradle.Detekt>().configureEach {
+    reports {
+        html.required.set(true)
+    }
+}
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     // google-services.json padh kar Firebase config generate karta hai
     alias(libs.plugins.google.services)
+    alias(libs.plugins.detekt)
 }
 
 // local.properties se secrets load (gitignored — public repo mein nahi jaate)
