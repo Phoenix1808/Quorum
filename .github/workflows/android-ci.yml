@@ -49,6 +49,15 @@ jobs:
       - name: Run Detekt
         continue-on-error: true
         run: ./gradlew detekt
+      
+      - name: Upload Detekt Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: detekt-report
+          path: android/app/build/reports/detekt/detekt.html
+          if-no-files-found: error
+          retention-days: 7
 
       - name: Upload Debug APK
         uses: actions/upload-artifact@v4
