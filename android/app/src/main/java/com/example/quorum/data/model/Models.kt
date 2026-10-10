@@ -14,7 +14,7 @@ data class Proposal(
     val snapshot: Long? = null
 )
 
-//Response Wrappers
+//Response the Wrappers
 
 data class ProposalsResponse(
     val page: Int, val count: Int, val proposals: List<Proposal>
