@@ -29,6 +29,18 @@ if (localPropsFile.exists()) {
 }
 val walletProjectId: String = localProps.getProperty("WALLET_PROJECT_ID") ?: ""
 
+val releaseStoreFile = System.getenv("ANDROID_KEYSTORE_PATH")
+val releaseStorePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+val releaseKeyAlias = System.getenv("ANDROID_KEY_ALIAS")
+val releaseKeyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+
+val hasReleaseSigning = listOf(
+    releaseStoreFile,
+    releaseStorePassword,
+    releaseKeyAlias,
+    releaseKeyPassword
+).all { !it.isNullOrBlank() }
+
 android {
     namespace = "com.example.quorum"
     compileSdk = 36
@@ -44,10 +56,24 @@ android {
 
         // Project ID ko BuildConfig.WALLET_PROJECT_ID se code mein use karo
         buildConfigField("String", "WALLET_PROJECT_ID", "\"$walletProjectId\"")
+
+        signingConfigs {
+            if (hasReleaseSigning) {
+                create("release") {
+                    storeFile = file(releaseStoreFile!!)
+                    storePassword = releaseStorePassword
+                    keyAlias = releaseKeyAlias
+                    keyPassword = releaseKeyPassword
+                }
+            }
+        }
     }
 
     buildTypes {
         release {
+            if (hasReleaseSigning) {
+                signingConfig = signingConfigs.getByName("release")
+            }
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
